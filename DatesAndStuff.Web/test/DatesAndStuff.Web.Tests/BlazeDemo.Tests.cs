@@ -49,5 +49,28 @@ public class BlazeDemoTests
         // megszamolnja ohgy legalabb 3 legyen
         var flights = driver.FindElements(By.CssSelector("table tbody tr"));
         flights.Count.Should().BeGreaterThanOrEqualTo(3);
-    }
+
+
+      /////////////////////////////// BONUSZ
+        double priceLimit = 300.0;
+
+        var rows = driver.FindElements(By.CssSelector("table tbody tr"));
+        foreach (var row in rows)
+        {
+            // utolso oszlopban vna az ar
+            var priceText = row.FindElements(By.TagName("td"))[5].Text;
+
+            // parsol
+            var price = double.Parse(priceText.Replace("$", "").Trim(), System.Globalization.CultureInfo.InvariantCulture);
+
+            if (price < priceLimit)
+            {
+                // keszul a screenshot
+                var screenshot = ((ITakesScreenshot)row).GetScreenshot();
+                var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                screenshot.SaveAsFile(Path.Combine(desktopPath, "cheap_flight_screenshot.png"));
+                break; // elso olcso jaratrol keszit kepet
+            }
+        }
+            }
 }
