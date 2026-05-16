@@ -97,30 +97,32 @@ public class PersonPageTests
         Assert.That(verificationErrors.ToString(), Is.EqualTo(""));
     }
 
-    [Test]
-    public void Person_SalaryIncrease_ShouldIncrease()
-    {
-        // Arrange
-        driver.Navigate().GoToUrl(BaseURL);
-        driver.FindElement(By.XPath("//*[@data-test='PersonPageNavigation']")).Click();
+    [TestCase(5, 5250)]
+[TestCase(10, 5500)]
+[TestCase(20, 6000)]
+[TestCase(50, 7500)]
+public void Person_SalaryIncrease_ShouldIncrease(int percentage, double expectedSalary)
+{
+    // Arrange
+    driver.Navigate().GoToUrl(BaseURL);
+    driver.FindElement(By.XPath("//*[@data-test='PersonPageNavigation']")).Click();
 
-        var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+    var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
 
-        var input = wait.Until(ExpectedConditions.ElementExists(By.XPath("//*[@data-test='SalaryIncreasePercentageInput']")));
-        input.Clear();
-        input.SendKeys("5");
+    wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//*[@data-test='SalaryIncreasePercentageInput']"))).Clear();
+    wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//*[@data-test='SalaryIncreasePercentageInput']"))).SendKeys(percentage.ToString());
 
-        // Act
-        var submitButton = wait.Until(ExpectedConditions.ElementExists(By.XPath("//*[@data-test='SalaryIncreaseSubmitButton']")));
-        submitButton.Click();
+    // Act
+    wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("//*[@data-test='SalaryIncreaseSubmitButton']"))).Click();
 
-
-        // Assert
-        var salaryLabel = wait.Until(ExpectedConditions.ElementExists(By.XPath("//*[@data-test='DisplayedSalary']")));
-        var salaryAfterSubmission = double.Parse(salaryLabel.Text);
-        salaryAfterSubmission.Should().BeApproximately(5250, 0.001);
-    }
-    private bool IsElementPresent(By by)
+    // Assert
+    var expectedText = expectedSalary.ToString();
+    wait.Until(ExpectedConditions.TextToBePresentInElementLocated(
+        By.XPath("//*[@data-test='DisplayedSalary']"),
+        expectedText
+    ));
+}
+       private bool IsElementPresent(By by)
     {
         try
         {
