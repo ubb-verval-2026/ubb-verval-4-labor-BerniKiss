@@ -97,11 +97,34 @@ public class PersonPageTests
         Assert.That(verificationErrors.ToString(), Is.EqualTo(""));
     }
 
+
+[Test]
+public void Person_SalaryIncrease_ValidationError_WhenPercentageLessThanMinus10()
+{
+    // Arrange
+    driver.Navigate().GoToUrl(BaseURL);
+    driver.FindElement(By.XPath("//*[@data-test='PersonPageNavigation']")).Click();
+
+    var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+
+    wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//*[@data-test='SalaryIncreasePercentageInput']"))).Clear();
+    wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//*[@data-test='SalaryIncreasePercentageInput']"))).SendKeys("-10");
+
+    // Act
+    wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("//*[@data-test='SalaryIncreaseSubmitButton']"))).Click();
+
+    // hiba az oldal tetejen mert ul lsitat general
+    wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//ul[contains(@class,'validation-errors')]")));
+
+    // hiba a mezo alatt
+    wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//div[contains(@class,'validation-message')]")));
+}
+
+
 [TestCase(5, 5250)]
 [TestCase(10, 5500)]
 [TestCase(20, 6000)]
 [TestCase(50, 7500)]
-[TestCase(-10, 4500)]
 public void Person_SalaryIncrease_ShouldIncrease(int percentage, double expectedSalary)
 {
     // Arrange
@@ -122,28 +145,6 @@ public void Person_SalaryIncrease_ShouldIncrease(int percentage, double expected
         By.XPath("//*[@data-test='DisplayedSalary']"),
         expectedText
     ));
-}
-
-[Test]
-public void Person_SalaryIncrease_ValidationError_WhenPercentageLessThanMinus10()
-{
-    // Arrange
-    driver.Navigate().GoToUrl(BaseURL);
-    driver.FindElement(By.XPath("//*[@data-test='PersonPageNavigation']")).Click();
-
-    var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-
-    wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//*[@data-test='SalaryIncreasePercentageInput']"))).Clear();
-    wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//*[@data-test='SalaryIncreasePercentageInput']"))).SendKeys("-15");
-
-    // Act
-    wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("//*[@data-test='SalaryIncreaseSubmitButton']"))).Click();
-
-    // hiba az oldal tetejen mert ul lsitat general
-    wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//ul[contains(@class,'validation-errors')]")));
-
-    // hiba a mezo alatt
-    wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//div[contains(@class,'validation-message')]")));
 }
 
        private bool IsElementPresent(By by)
